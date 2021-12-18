@@ -52,7 +52,7 @@ def plot_acquisition(bounds, input_dim, model, Xdata, Ydata, acquisition_functio
             label_x = 'x'
 
         if not label_y:
-            label_y = 'f(x)'
+            label_y = 'y'
 
         x_grid = np.arange(bounds[0][0], bounds[0][1], 0.001)
         x_grid = x_grid.reshape(len(x_grid),1)
@@ -61,7 +61,11 @@ def plot_acquisition(bounds, input_dim, model, Xdata, Ydata, acquisition_functio
         m, v = model.predict(x_grid)
 
 
-        model.plot_density(bounds[0], alpha=.5)
+        #model.plot_density(bounds[0], alpha=.5)
+        
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.set_axisbelow(True)
 
         plt.plot(x_grid, m, 'k-',lw=1,alpha = 0.6)
         plt.plot(x_grid, m-1.96*np.sqrt(v), 'k-', alpha = 0.2)
@@ -71,12 +75,13 @@ def plot_acquisition(bounds, input_dim, model, Xdata, Ydata, acquisition_functio
         plt.axvline(x=suggested_sample[len(suggested_sample)-1],color='r')
         factor = max(m+1.96*np.sqrt(v))-min(m-1.96*np.sqrt(v))
 
-        plt.plot(x_grid,0.2*factor*acqu_normalized-abs(min(m-1.96*np.sqrt(v)))-0.25*factor, 'r-',lw=2,label ='Acquisition (arbitrary units)')
+        plt.plot(x_grid,0.2*factor*acqu_normalized-abs(min(m-1.96*np.sqrt(v)))-0.25*factor, 'k-',lw=2,label ='Função de Aquisição (Normalizada)')
         plt.xlabel(label_x)
         plt.ylabel(label_y)
         plt.ylim(min(m-1.96*np.sqrt(v))-0.25*factor,  max(m+1.96*np.sqrt(v))+0.05*factor)
         plt.axvline(x=suggested_sample[len(suggested_sample)-1],color='r')
         plt.legend(loc='upper left')
+        plt.grid()
 
 
         if filename!=None:
