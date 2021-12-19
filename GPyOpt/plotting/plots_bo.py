@@ -54,35 +54,43 @@ def plot_acquisition(bounds, input_dim, model, Xdata, Ydata, acquisition_functio
         if not label_y:
             label_y = 'y'
 
-        x_grid = np.arange(bounds[0][0], bounds[0][1], 0.001)
-        x_grid = x_grid.reshape(len(x_grid),1)
-        acqu = acquisition_function(x_grid)
-        acqu_normalized = (-acqu - min(-acqu))/(max(-acqu - min(-acqu)))
-        m, v = model.predict(x_grid)
-
-
-        #model.plot_density(bounds[0], alpha=.5)
-        
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.set_axisbelow(True)
 
-        plt.plot(x_grid, m, 'k-',lw=1,alpha = 0.6)
-        plt.plot(x_grid, m-1.96*np.sqrt(v), 'k-', alpha = 0.2)
-        plt.plot(x_grid, m+1.96*np.sqrt(v), 'k-', alpha=0.2)
+        x_grid = np.arange(bounds[0][0], bounds[0][1], 0.001)
+        x_grid = x_grid.reshape(len(x_grid),1)
 
-        plt.plot(Xdata, Ydata, 'r.', markersize=10)
-        plt.axvline(x=suggested_sample[len(suggested_sample)-1],color='r')
+        acqu = acquisition_function(x_grid)
+        acqu_normalized = (-acqu - min(-acqu))/(max(-acqu - min(-acqu)))
+
+        #model.plot_density(bounds[0], alpha=.5)
+
+        m, v = model.predict(x_grid)
+
+        plt.gca().fill_between(x_grid.flat, m.flat-1.96*np.sqrt(v.flat), m.flat+1.96*np.sqrt(v.flat), color="#c3d5eb", alpha=.5)
+
+        #plt.plot(x_grid, m, 'k-',lw=1,alpha = 0.6)
+        #plt.plot(x_grid, m-1.96*np.sqrt(v), 'k-', alpha = 0.2)
+        #plt.plot(x_grid, m+1.96*np.sqrt(v), 'k-', alpha=0.2)
+
+        plt.plot(x_grid, m.flat, 'k--', lw=1, label='g(x)', alpha = 0.6)
+
+        plt.plot(Xdata, Ydata, 'k.', markersize=8, label="Observações")
         factor = max(m+1.96*np.sqrt(v))-min(m-1.96*np.sqrt(v))
 
-        plt.plot(x_grid,0.2*factor*acqu_normalized-abs(min(m-1.96*np.sqrt(v)))-0.25*factor, 'k-',lw=2,label ='Função de Aquisição (Normalizada)')
+        plt.plot(x_grid,0.2*factor*acqu_normalized-abs(min(m-1.96*np.sqrt(v)))-0.25*factor, 'k-',lw=1,label ='Função de Aquisição (Normalizada)')
+        plt.ylim(min(m-1.96*np.sqrt(v))-0.25*factor,  max(m+1.96*np.sqrt(v))+0.05*factor)
+        #plt.axvline(x=suggested_sample[len(suggested_sample)-1],color='k')
+        plt.axvline(x=suggested_sample[len(suggested_sample)-1], color='r', label="Próxima Observação")
+
         plt.xlabel(label_x)
         plt.ylabel(label_y)
-        plt.ylim(min(m-1.96*np.sqrt(v))-0.25*factor,  max(m+1.96*np.sqrt(v))+0.05*factor)
-        plt.axvline(x=suggested_sample[len(suggested_sample)-1],color='r')
-        plt.legend(loc='upper left')
+        plt.xlim(0, 119)
         plt.grid()
+        plt.legend(fontsize=8)
 
+        plt.xticks([0, 20, 40, 60, 80, 100, 119])
 
         if filename!=None:
             savefig(filename)
